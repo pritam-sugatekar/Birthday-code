@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For My Friend 🤍</title>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+  :root {
+    --primary: #ff5f8a;
+    --soft-white: #ffffffcc;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    color: white;
+    height: 100vh;
+    overflow-y: auto; /* Better for mobile */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .page {
+    display: none;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    animation: fadeIn 0.8s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  button {
+    padding: 12px 26px;
+    border: none;
+    border-radius: 30px;
+    background: var(--primary);
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    margin: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+  }
+
+  button:active { transform: scale(0.95); }
+
+  input {
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    width: 80%;
+    text-align: center;
+    font-size: 16px;
+    margin: 15px 0;
+    color: #333;
+  }
+
+  .musicBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--soft-white);
+    color: var(--primary);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    z-index: 100;
+  }
+
+  .cake {
+    font-size: 100px;
+    margin: 20px 0;
+    animation: spin 6s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .note {
+    width: 280px;
+    background: white;
+    color: #333;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 15px;
+    transform: perspective(600px) rotateX(60deg);
+    transition: 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    opacity: 0.8;
+  }
+
+  .note.open {
+    transform: perspective(600px) rotateX(0deg);
+    opacity: 1;
+  }
+
+  .disclaimerBtn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    font-size: 12px;
+    padding: 8px 15px;
+    background: white;
+    color: var(--primary);
+    border-radius: 20px;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+    z-index: 100;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  .disclaimerBox {
+    position: fixed;
+    bottom: 75px;
+    left: 20px;
+    width: 260px;
+    background: white;
+    color: #444;
+    font-size: 13px;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    display: none;
+    text-align: left;
+    z-index: 101;
+  }
+
+  #m1, #m2, #h1 { height: 20px; margin-top: 10px; font-weight: bold; }
+  #h1 {
+      height: auto;
+  }
+</style>
+</head>
+
+<body>
+
+<audio id="bgMusic" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7e5a8a8f4f.mp3">
+</audio>
+<audio id="cakeMusic">
+  <source src="https://cdn.pixabay.com/download/audio/2022/10/30/audio_3c48b01fd6.mp3">
+</audio>
+
+<button class="musicBtn" onclick="toggleMusic()">🎧</button>
+
+<div class="page" id="p1" style="display:block;">
+  <h1>Hey my friend 🤍</h1>
+  <p>I made something special for you…</p>
+  <button onclick="start()">Start 🎁</button>
+</div>
+
+<div class="page" id="p2">
+  <h2>Do you enjoy our friendship? 🤍</h2>
+  <div style="height: 100px;">
+    <button id="no1" onmouseover="moveButton(this)" onclick="noMsg('m1')">No</button>
+    <button onclick="yes1()">Yes</button>
+  </div>
+  <p id="m1"></p>
+</div>
+
+<div class="page" id="p3">
+  <h2>Does this make you smile today? 😊</h2>
+  <div style="height: 100px;">
+    <button id="no2" onmouseover="moveButton(this)" onclick="noMsg('m2')">No</button>
+    <button onclick="yes2()">Yes</button>
+  </div>
+  <p id="m2"></p>
+</div>
+
+<div class="page" id="p4">
+  <h3>One Quick Question 😊</h3>
+  <p>What nickname did we call you during our school days?</p>
+  <input id="a1" placeholder="Type here..." autocomplete="off">
+  <p id="h1"> </p>
+  <button onclick="check1()">Submit</button>
+</div>
+
+<div class="page" id="p5">
+  <h2>Friendships like ours 🤍</h2>
+  <p>Are rare, beautiful, and timeless. Thank you for all the memories, laughs, and moments we've shared.</p>
+  <button onclick="next(6)">Next Surprise ✨</button>
+</div>
+
+<div class="page" id="p6">
+  <h2>Make a Wish 🎂</h2>
+  <div class="cake">🎂</div>
+  <p>Blow the candles!</p>
+  <button onclick="blow()">Blow Candles 🕯️</button>
+  <p id="wait"></p>
+</div>
+
+<div class="page" id="p7">
+  <h2>Ready?</h2>
+  <button onclick="next(8)">Final Surprise 🎉</button>
+</div>
+
+<div class="page" id="p8">
+  <h2>Tap the Note 💌</h2>
+  <div class="note" id="birthdayNote" onclick="openNote(this)">
+    <p>
+      <strong style="color: #ff5f8a; font-size: 1.2em;">🎉 HAPPY BIRTHDAY SHRESHTI 🎉</strong><br><br>
+      आजचा दिवस special आहे, because you make ordinary moments feel special.
+      तुझं smile खूप genuine आहे, and your presence brings a calm, positive vibes.
+      तू जशी आहेस, तशीच राहा — simple, kind आणि always true to yourself.
+      May this year bring you new opportunities, self-confidence, and happiness that stays longer than just moments. 🌸 <br><br>
+      Always stay happy and smiling! 😊🤍
+    </p>
+  </div>
+  <p style="font-size: 0.8em; margin-top: 20px;">(Tap again to close)</p>
+</div>
+
+<button class="disclaimerBtn" onclick="toggleDisclaimer()">⚠️ Disclaimer</button>
+<div class="disclaimerBox" id="disc">
+  This was originally a mini project I created for college.<br><br>
+  February 3rd is your birthday, so I updated this for you <b>as a friend</b>.<br><br>
+  I hope you like it! Feel free to be honest with me.
+</div>
+
+<script>
+let answers = ["ladu", "ladi", "laddu"];
+let bg = document.getElementById("bgMusic");
+let cakeM = document.getElementById("cakeMusic");
+let playing = false;
+
+// Function to handle "Enter" key for the input
+document.getElementById("a1").addEventListener("keypress", function(event) {
+  if (event.key === "Enter") {
+    check1();
+  }
+});
+
+function toggleMusic() {
+  if (playing) { bg.pause(); playing = false; }
+  else { bg.play(); playing = true; }
+}
+
+function start() {
+  bg.volume = 0.5;
+  bg.play();
+  playing = true;
+  next(2);
+}
+
+function next(n) {
+  document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+  document.getElementById("p" + n).style.display = "block";
+}
+
+// Playful dodging button
+function moveButton(btn) {
+  const x = Math.random() * (window.innerWidth - 100);
+  const y = Math.random() * (window.innerHeight - 50);
+  btn.style.position = "absolute";
+  btn.style.left = x + "px";
+  btn.style.top = y + "px";
+}
+
+function noMsg(id) {
+  document.getElementById(id).innerHTML = "Nope 😄 Try YES 🤍";
+}
+
+function yes1() {
+  document.getElementById("m1").innerHTML = "I knew it 😊🤍";
+  setTimeout(() => next(3), 1000);
+}
+
+function yes2() {
+  document.getElementById("m2").innerHTML = "That smile matters 😊";
+  setTimeout(() => next(4), 1000);
+}
+let hintCount = 0;
+function check1() {
+  let v = document.getElementById("a1").value.trim().toLowerCase();
+  if (answers.includes(v)) {
+    next(5);
+  } else {
+    hintCount++;
+
+    let text = "";
+
+    if (hintCount >= 1) {
+      text = "Really..? you don't even remember 😕 Go on try again";
+    }
+
+    if (hintCount >= 2) {
+      text += "<br><br>It’s a sweet that we eat during festivals 🍬";
+    }
+
+    if (hintCount >= 3) {
+      text += "<br><br>It starts with <b>La</b> 😄";
+    }
+    document.getElementById("h1").innerHTML = text;
+    document.getElementById("h1").style.color = "yellow";
+  }
+}
+
+function blow() {
+  bg.pause();
+  cakeM.play();
+  document.getElementById("wait").innerHTML = "Magic is happening... ✨";
+  
+  // Throw initial confetti
+  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+  
+  setTimeout(() => next(7), 3000);
+}
+
+function openNote(el) {
+  if (!el.classList.contains('open')) {
+    el.classList.add('open');
+    // Big confetti blast
+    confetti({
+      particleCount: 200,
+      spread: 90,
+      origin: { y: 0.7 },
+      colors: ['#ff5f8a', '#ffffff', '#ff9a9e']
+    });
+  } else {
+    el.classList.remove('open');
+  }
+}
+
+function toggleDisclaimer() {
+  let d = document.getElementById("disc");
+  d.style.display = (d.style.display === "block") ? "none" : "block";
+}
+</script>
+
+</body>
+</html>
